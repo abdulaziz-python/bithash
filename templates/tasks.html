@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BitHash Mining - Tasks</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        window.onload = function() {
+            window.Telegram.WebApp.requestFullscreen();
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .header {
+            padding: 20px 0;
+            border-bottom: 1px solid #333333;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .balance-display {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 12px;
+            color: #666666;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #333333;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #333333;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task-icon {
+            font-size: 20px;
+        }
+
+        .task-name {
+            font-size: 16px;
+            color: #ffffff;
+        }
+
+        .task-link {
+            background: #ffffff;
+            color: #000000;
+            padding: 8px 16px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .task-link:hover {
+            background: #f0f0f0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: #666666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #000000;
+            border: none;
+            border-bottom: 1px solid #333333;
+            padding: 12px 0;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-bottom-color: #ffffff;
+        }
+
+        .form-input::placeholder {
+            color: #666666;
+        }
+
+        .btn {
+            width: 100%;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .btn:hover {
+            background: #f0f0f0;
+        }
+
+        .nav-links {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #000000;
+            border-top: 1px solid #333333;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .nav-link {
+            color: #666666;
+            text-decoration: none;
+            font-size: 12px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-link:hover {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">BitHash</div>
+                <div class="balance-display">{{ "%.5f"|format(balance) }} BHC</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Community Tasks</div>
+            {% for task in tasks %}
+            <div class="task-item">
+                <div class="task-info">
+                    <span class="task-icon">{{ task.icon }}</span>
+                    <span class="task-name">{{ task.name }}</span>
+                </div>
+                <a href="{{ task.url }}" target="_blank" class="task-link">Join</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="section">
+            <div class="section-title">Send Transaction</div>
+            <form method="POST" action="/transaction">
+                <div class="form-group">
+                    <label for="to_wallet" class="form-label">To Wallet</label>
+                    <input type="text" id="to_wallet" name="to_wallet" class="form-input" 
+                           placeholder="bh1234567890abcdef..." required>
+                </div>
+                <div class="form-group">
+                    <label for="amount" class="form-label">Amount</label>
+                    <input type="number" id="amount" name="amount" class="form-input" 
+                           placeholder="0.000000" step="0.000001" min="0.000001" required>
+                </div>
+                <button type="submit" class="btn">Send Transaction</button>
+            </form>
+        </div>
+
+        <div class="nav-links">
+            <div class="nav-grid">
+                <a href="/user" class="nav-link">Mining</a>
+                <a href="/blockchain" class="nav-link">Explorer</a>
+                <a href="/" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

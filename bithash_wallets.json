@@ -1,0 +1,14 @@
+{
+  "bh87defef6-3": {
+    "energy": 100.0,
+    "last_mined": 0,
+    "created_at": 1749896349,
+    "total_mined": 123.0,
+    "total_sent": 0.0,
+    "total_received": 0.0,
+    "telegram_chat_id": null,
+    "last_login": 1749896349,
+    "mining_sessions": 0,
+    "total_blocks_mined": 0
+  }
+}

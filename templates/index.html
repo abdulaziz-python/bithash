@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        window.onload = function() {
+            window.Telegram.WebApp.requestFullscreen();
+        };
+    </script>
+    <title>BitHash Mining</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 60px;
+            text-align: center;
+        }
+
+        .stats {
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #333333;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .login-section {
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #333333;
+        }
+
+        .login-title {
+            font-size: 16px;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: #666666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #000000;
+            border: none;
+            border-bottom: 1px solid #333333;
+            padding: 12px 0;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-bottom-color: #ffffff;
+        }
+
+        .form-input::placeholder {
+            color: #666666;
+        }
+
+        .btn {
+            width: 100%;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background: #f0f0f0;
+        }
+
+        .footer {
+            text-align: center;
+        }
+
+        .footer-link {
+            color: #666666;
+            text-decoration: none;
+            margin: 0 20px;
+            font-size: 14px;
+        }
+
+        .footer-link:hover {
+            color: #ffffff;
+        }
+
+        .separator {
+            margin: 40px 0;
+            border-bottom: 1px solid #333333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            BitHash
+        </div>
+        
+        <div class="stats">
+            <div class="stats-grid">
+                <div>
+                    <div class="stat-value">{{ blockchain_height }}</div>
+                    <div class="stat-label">Blocks</div>
+                </div>
+                <div>
+                    <div class="stat-value">{{ wallets|length }}</div>
+                    <div class="stat-label">Miners</div>
+                </div>
+                <div>
+                    <div class="stat-value">21M</div>
+                    <div class="stat-label">Supply</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-section">
+            <div class="login-title">Login with Wallet Address</div>
+            <form method="POST" action="/login_wallet">
+                <div class="form-group">
+                    <label for="wallet_address" class="form-label">Wallet Address</label>
+                    <input type="text" id="wallet_address" name="wallet_address" class="form-input" 
+                           placeholder="bh1234567890abcdef..." required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+        </div>
+
+        <div class="separator"></div>
+
+        <!-- <div class="login-section">
+            <div class="login-title">Login with Telegram ID</div>
+            <form method="POST" action="/login_wallet">
+                <div class="form-group">
+                    <label for="telegram_id" class="form-label">Telegram ID</label>
+                    <input type="text" id="telegram_id" name="telegram_id" class="form-input" 
+                           placeholder="123456789" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+        </div> -->
+
+        <div class="separator"></div>
+
+        <form method="POST" action="/create_wallet">
+            <button type="submit" class="btn">Create New Wallet</button>
+        </form>
+
+        <div class="footer">
+            <a href="/blockchain" class="footer-link">Explorer</a>
+        </div>
+    </div>
+</body>
+</html>

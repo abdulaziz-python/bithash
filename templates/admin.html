@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BitHash - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000000;
+            color: #ffffff;
+            font-family: monospace;
+            line-height: 1.4;
+        }
+        
+        .header {
+            background: #111111;
+            padding: 15px;
+            border-bottom: 1px solid #333333;
+        }
+        
+        .header h1 {
+            color: #ffffff;
+            text-align: center;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: #111111;
+            padding: 15px;
+            border: 1px solid #333333;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666666;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+        
+        .section {
+            background: #111111;
+            padding: 20px;
+            border: 1px solid #333333;
+            margin-bottom: 25px;
+        }
+        
+        .section h2 {
+            color: #ffffff;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 10px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #333333;
+            font-size: 10px;
+        }
+        
+        th {
+            background: #000000;
+            color: #ffffff;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        td {
+            color: #666666;
+        }
+        
+        .wallet-address {
+            font-size: 9px;
+            color: #999999;
+        }
+        
+        .logout-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: #111111;
+            color: #ffffff;
+            padding: 8px 15px;
+            border: 1px solid #333333;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 10px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #333333;
+            border-color: #ffffff;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .stat-value {
+                font-size: 16px;
+            }
+            
+            table {
+                font-size: 9px;
+            }
+            
+            th,
+            td {
+                padding: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>BITHASH ADMIN PANEL</h1>
+        <a href="/" class="logout-btn">LOGOUT</a>
+    </div>
+    
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.total_wallets }}</div>
+                <div class="stat-label">TOTAL WALLETS</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.active_miners }}</div>
+                <div class="stat-label">ACTIVE MINERS</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.total_blocks }}</div>
+                <div class="stat-label">TOTAL BLOCKS</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ "%.0f"|format(stats.total_supply) }}</div>
+                <div class="stat-label">TOTAL SUPPLY</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.max_supply }}</div>
+                <div class="stat-label">MAX SUPPLY</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.pending_transactions }}</div>
+                <div class="stat-label">PENDING TX</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.total_holders }}</div>
+                <div class="stat-label">TOTAL HOLDERS</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>TOP MINERS ({{ top_miners|length }})</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>RANK</th>
+                            <th>WALLET</th>
+                            <th>MINED</th>
+                            <th>BLOCKS</th>
+                            <th>SESSIONS</th>
+                            <th>LAST LOGIN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for miner in top_miners %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td class="wallet-address">{{ miner.address }}</td>
+                            <td>{{ "%.6f"|format(miner.total_mined) }}</td>
+                            <td>{{ miner.total_blocks_mined }}</td>
+                            <td>{{ miner.mining_sessions }}</td>
+                            <td>{{ miner.last_login }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>TOP HOLDERS ({{ all_holders|length }})</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>RANK</th>
+                            <th>WALLET</th>
+                            <th>BALANCE</th>
+                            <th>MINED</th>
+                            <th>PERCENTAGE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for holder in all_holders[:20] %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td class="wallet-address">{{ holder.wallet }}</td>
+                            <td>{{ "%.6f"|format(holder.balance) }}</td>
+                            <td>{{ "%.6f"|format(holder.mined) }}</td>
+                            <td>{{ "%.2f"|format((holder.balance / stats.total_supply * 100) if stats.total_supply > 0 else 0) }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>ALL WALLETS ({{ wallets|length }} TOTAL)</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>WALLET</th>
+                            <th>ENERGY</th>
+                            <th>BALANCE</th>
+                            <th>MINED</th>
+                            <th>SENT</th>
+                            <th>RECEIVED</th>
+                            <th>CREATED</th>
+                            <th>TELEGRAM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for wallet in wallets %}
+                        <tr>
+                            <td class="wallet-address">{{ wallet.address }}</td>
+                            <td>{{ "%.1f"|format(wallet.energy) }}</td>
+                            <td>{{ "%.6f"|format(wallet.total_mined + wallet.total_received - wallet.total_sent) }}</td>
+                            <td>{{ "%.6f"|format(wallet.total_mined) }}</td>
+                            <td>{{ "%.6f"|format(wallet.total_sent) }}</td>
+                            <td>{{ "%.6f"|format(wallet.total_received) }}</td>
+                            <td>{{ wallet.created_at }}</td>
+                            <td>{{ 'YES' if wallet.telegram_chat_id else 'NO' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>RECENT BLOCKS (LAST 15)</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>BLOCK</th>
+                            <th>MINER</th>
+                            <th>REWARD</th>
+                            <th>TX COUNT</th>
+                            <th>HASH</th>
+                            <th>TIMESTAMP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for block in blockchain[-15:]|reverse %}
+                        <tr>
+                            <td>{{ block.index }}</td>
+                            <td class="wallet-address">{{ block.miner }}</td>
+                            <td>{{ "%.6f"|format(block.reward or 0) }}</td>
+                            <td>{{ block.transactions|length }}</td>
+                            <td class="wallet-address">{{ block.hash[:16] }}...</td>
+                            <td>{{ block.timestamp }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        setTimeout(() => {
+            location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>

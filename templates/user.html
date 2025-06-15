@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BitHash Mining - Dashboard</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        window.onload = function() {
+            window.Telegram.WebApp.requestFullscreen();
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .header {
+            padding: 20px 0;
+            border-bottom: 1px solid #333333;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .wallet-addr {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 10px;
+            color: #666666;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: #666666;
+            cursor: pointer;
+            font-size: 9px;
+            margin-left: 5px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            text-transform: uppercase;
+        }
+
+        .copy-btn:hover {
+            color: #ffffff;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #333333;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #333333;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .stat-value {
+            font-size: 12px;
+            color: #666666;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        }
+
+        .energy-bar {
+            width: 100%;
+            height: 3px;
+            background: #333333;
+            margin-top: 8px;
+        }
+
+        .energy-fill {
+            height: 100%;
+            background: #ffffff;
+            transition: width 0.3s ease;
+        }
+
+        .mining-status {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .status-line {
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 15px;
+        }
+
+        .status-active {
+            color: #00ff00;
+        }
+
+        .status-inactive {
+            color: #ff0000;
+        }
+
+        .btn {
+            background: none;
+            border: 1px solid #666666;
+            color: #666666;
+            padding: 8px 20px;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+
+        .btn:disabled {
+            border-color: #333333;
+            color: #333333;
+            cursor: not-allowed;
+        }
+
+        .btn-stop {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        .btn-stop:hover {
+            color: #ffffff;
+            border-color: #ff0000;
+        }
+
+        .log-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #333333;
+            font-size: 12px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .log-time {
+            color: #666666;
+        }
+
+        .log-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-square {
+            width: 12px;
+            height: 12px;
+            border: 1px solid;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .status-reward {
+            border-color: #0066ff;
+            color: #0066ff;
+        }
+
+        .status-no-reward {
+            border-color: #ff9900;
+            color: #ff9900;
+        }
+
+        .log-info {
+            font-size: 11px;
+            color: #666666;
+        }
+
+        .reward-amount {
+            color: #0066ff;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #000000;
+            border-top: 1px solid #333333;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .nav-link {
+            color: #666666;
+            text-decoration: none;
+            font-size: 12px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-link:hover {
+            color: #ffffff;
+        }
+
+        .mining-logs {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ffffff;
+            color: #000000;
+            padding: 10px 15px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background: #ff0000;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">BitHash</div>
+                <div class="wallet-addr">
+                    {{ wallet[:8] }}...{{ wallet[-6:] }}
+                    <button class="copy-btn" onclick="copyWallet()" title="Copy wallet">[COPY]</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Wallet Stats</div>
+            <div class="stat-item">
+                <div class="stat-header">
+                    <span class="stat-label">Balance</span>
+                    <span class="stat-value balance" id="balance-value">{{ "%.5f"|format(balance) }} BHC</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-header">
+                    <span class="stat-label">Energy</span>
+                    <span class="stat-value energy" id="energy-value">{{ "%.0f"|format(energy) }}/200</span>
+                </div>
+                <div class="energy-bar">
+                    <div class="energy-fill" id="energy-bar" style="width: {{ (energy/200)*100 }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Mining Status</div>
+            <div class="mining-status">
+                <div class="status-line" id="mining-status">
+                    {% if is_mining %}
+                        <span class="status-active">MINING IN PROGRESS</span>
+                    {% else %}
+                        <span class="status-inactive">{{ mine_status.upper() }}</span>
+                    {% endif %}
+                </div>
+
+                <div id="session-reward" style="{% if not wallet_stats.session_rewards or wallet_stats.session_rewards <= 0 %}display: none;{% endif %}">
+                    <div class="stat-item">
+                        <div class="stat-header">
+                            <span class="stat-label">Session Reward</span>
+                            <span class="stat-value" id="session-reward-value">{{ "%.6f"|format(wallet_stats.session_rewards or 0) }} BHC</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="mining-controls">
+                    {% if can_mine %}
+                        {% if not is_mining %}
+                            <button type="button" class="btn" onclick="startMining()">Start Mining</button>
+                        {% else %}
+                            <button type="button" class="btn btn-stop" onclick="stopMining()">Stop Mining</button>
+                        {% endif %}
+                    {% else %}
+                        <button class="btn" disabled>{{ mine_status.upper() }}</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Mining Logs</div>
+            <div class="mining-logs" id="mining-logs">
+                {% for block in recent_blocks %}
+                <div class="log-item">
+                    <div class="log-header">
+                        <span class="log-time">[{{ block.timestamp | safe }}]</span>
+                        <div class="log-status">
+                            {% if block.reward > 0 %}
+                            <div class="status-square status-reward">+</div>
+                            {% else %}
+                            <div class="status-square status-no-reward">-</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="log-info">
+                        Block #{{ block.index }} | 
+                        {% if block.reward > 0 %}
+                        <span class="reward-amount">+{{ "%.6f"|format(block.reward) }} BHC</span>
+                        {% else %}
+                        No Reward
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% if recent_blocks|length == 0 %}
+                <div class="log-item" id="empty-logs">
+                    <div class="log-info">No mining logs yet. Start mining to see logs here.</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <div class="nav-grid">
+                <a href="/tasks" class="nav-link">Tasks</a>
+                <a href="/blockchain" class="nav-link">Explorer</a>
+                <a href="/" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let currentBalance = {{ balance }};
+        let sessionReward = {{ wallet_stats.session_rewards or 0 }};
+        let isMining = {{ 'true' if is_mining else 'false' }};
+
+        // Telegram WebApp initialization
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+            
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const user = tg.initDataUnsafe.user;
+                console.log('Telegram User ID:', user.id);
+                
+                if (user.id && !window.location.search.includes('telegram_id')) {
+                    window.history.replaceState({}, '', `${window.location.origin}?telegram_id=${user.id}`);
+                }
+            }
+        }
+
+        function copyWallet() {
+            const walletText = '{{ wallet }}';
+            navigator.clipboard.writeText(walletText).then(() => {
+                showToast('Wallet address copied!');
+            }).catch(() => {
+                showToast('Failed to copy wallet address', true);
+            });
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        function formatTime() {
+            return new Date().toLocaleTimeString('en-US', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        function startMining() {
+            fetch('/api/start_mining', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    isMining = true;
+                    updateMiningStatus(true);
+                    updateMiningControls(true);
+                    showToast('Mining started!');
+                } else {
+                    showToast(data.message, true);
+                }
+            })
+            .catch(() => {
+                showToast('Failed to start mining', true);
+            });
+        }
+
+        function stopMining() {
+            fetch('/api/stop_mining', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    isMining = false;
+                    updateMiningStatus(false);
+                    updateMiningControls(false);
+                    showToast('Mining stopped!');
+                } else {
+                    showToast(data.message, true);
+                }
+            })
+            .catch(() => {
+                showToast('Failed to stop mining', true);
+            });
+        }
+
+        function updateMiningStatus(mining, statusText = null) {
+            const statusElement = document.getElementById('mining-status');
+            if (statusElement) {
+                if (mining) {
+                    statusElement.innerHTML = '<span class="status-active">MINING IN PROGRESS</span>';
+                } else {
+                    const text = statusText || 'STOPPED';
+                    statusElement.innerHTML = `<span class="status-inactive">${text.toUpperCase()}</span>`;
+                }
+            }
+        }
+
+        function updateMiningControls(mining) {
+            const controlsContainer = document.getElementById('mining-controls');
+            if (controlsContainer) {
+                if (mining) {
+                    controlsContainer.innerHTML = '<button type="button" class="btn btn-stop" onclick="stopMining()">Stop Mining</button>';
+                } else {
+                    controlsContainer.innerHTML = '<button type="button" class="btn" onclick="startMining()">Start Mining</button>';
+                }
+            }
+        }
+
+        function addLogEntry(data) {
+            const logsContainer = document.getElementById('mining-logs');
+            if (logsContainer) {
+                // Remove empty logs message if it exists
+                const emptyLogs = document.getElementById('empty-logs');
+                if (emptyLogs) {
+                    emptyLogs.remove();
+                }
+
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-item';
+                
+                const hasReward = data.reward > 0;
+                const statusClass = hasReward ? 'status-reward' : 'status-no-reward';
+                const statusSymbol = hasReward ? '+' : '-';
+                
+                const rewardText = hasReward ? 
+                    `<span class="reward-amount">+${data.reward.toFixed(6)} BHC</span>` : 
+                    'No Reward';
+                
+                logEntry.innerHTML = `
+                    <div class="log-header">
+                        <span class="log-time">[${formatTime()}]</span>
+                        <div class="log-status">
+                            <div class="status-square ${statusClass}">${statusSymbol}</div>
+                        </div>
+                    </div>
+                    <div class="log-info">
+                        Block #${data.block_number} | ${rewardText}
+                    </div>
+                `;
+                
+                logsContainer.appendChild(logEntry);
+                logsContainer.scrollTop = logsContainer.scrollHeight;
+
+                // Keep only last 50 logs
+                const logs = logsContainer.querySelectorAll('.log-item');
+                if (logs.length > 100) {
+                    logsContainer.removeChild(logs[0]);
+                }
+            }
+        }
+
+        function updateBalance(newBalance) {
+            currentBalance = newBalance;
+            const balanceElement = document.getElementById('balance-value');
+            if (balanceElement) {
+                balanceElement.textContent = `${newBalance.toFixed(5)} BHC`;
+            }
+        }
+
+        function updateSessionReward(reward) {
+            sessionReward = reward;
+            const sessionRewardElement = document.getElementById('session-reward-value');
+            const sessionRewardContainer = document.getElementById('session-reward');
+            
+            if (sessionRewardElement && sessionRewardContainer) {
+                sessionRewardElement.textContent = `${reward.toFixed(6)} BHC`;
+                sessionRewardContainer.style.display = reward > 0 ? 'block' : 'none';
+            }
+        }
+
+        // Socket event handlers
+        socket.on('energy_update', (data) => {
+            if (data.wallet === '{{ wallet }}') {
+                const energyValue = document.getElementById('energy-value');
+                const energyBar = document.getElementById('energy-bar');
+                
+                energyValue.textContent = `${Math.floor(data.energy)}/200`;
+                energyBar.style.width = `${(data.energy / 200) * 100}%`;
+                
+                if (data.energy <= 20) {
+                    showToast('Low energy! Consider buying more energy.', true);
+                }
+            }
+        });
+
+        socket.on('mining_log', (data) => {
+            if (data.wallet === '{{ wallet }}') {
+                addLogEntry(data);
+                
+                if (data.reward > 0) {
+                    showToast(`Block mined! +${data.reward.toFixed(6)} BHC`);
+                }
+            }
+        });
+
+        socket.on('balance_update', (data) => {
+            if (data.wallet === '{{ wallet }}') {
+                updateBalance(data.balance);
+                updateSessionReward(data.session_rewards);
+            }
+        });
+
+        socket.on('mining_stopped', (data) => {
+            if (data.wallet === '{{ wallet }}') {
+                const hours = Math.floor(data.duration / 3600);
+                const minutes = Math.floor((data.duration % 3600) / 60);
+                
+                isMining = false;
+                updateMiningStatus(false, 'STOPPED');
+                updateMiningControls(false);
+                
+                if (data.total_reward > 0) {
+                    showToast(`Mining completed! Earned ${data.total_reward.toFixed(6)} BHC in ${hours}h ${minutes}m`);
+                } else {
+                    showToast(`Mining session ended. No rewards earned in ${hours}h ${minutes}m`, true);
+                }
+
+                // Reset session reward display
+                sessionReward = 0;
+                updateSessionReward(0);
+            }
+        });
+
+        // Auto-scroll logs to bottom on page load
+        window.addEventListener('load', () => {
+            const logsContainer = document.getElementById('mining-logs');
+            if (logsContainer) {
+                logsContainer.scrollTop = logsContainer.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>

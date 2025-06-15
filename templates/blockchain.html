@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BitHash Mining - Blockchain Explorer</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        window.onload = function() {
+            window.Telegram.WebApp.requestFullscreen();
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .header {
+            padding: 20px 0;
+            border-bottom: 1px solid #333333;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .block-count {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 12px;
+            color: #666666;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #333333;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .block-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #333333;
+        }
+
+        .block-item:last-child {
+            border-bottom: none;
+        }
+
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .block-number {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .block-reward {
+            font-size: 12px;
+            color: #666666;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        }
+
+        .block-info {
+            font-size: 12px;
+            color: #666666;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        }
+
+        .tx-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #333333;
+            font-size: 12px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        }
+
+        .tx-item:last-child {
+            border-bottom: none;
+        }
+
+        .tx-amount {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #000000;
+            border-top: 1px solid #333333;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .nav-link {
+            color: #666666;
+            text-decoration: none;
+            font-size: 12px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-link:hover {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">BitHash</div>
+                <div class="block-count">{{ total_blocks }} blocks</div>
+            </div>
+        </div>
+
+        {% if pending_transactions|length > 0 %}
+        <div class="section">
+            <div class="section-title">Pending Transactions</div>
+            {% for tx in pending_transactions[-10:] %}
+            <div class="tx-item">
+                {{ tx.from[:8] }}... → {{ tx.to[:8] }}... | <span class="tx-amount">{{ "%.6f"|format(tx.amount) }} BHC</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="section">
+            <div class="section-title">Recent Blocks</div>
+            {% for block in blockchain[-10:]|reverse %}
+            <div class="block-item">
+                <div class="block-header">
+                    <span class="block-number">Block #{{ block.index }}</span>
+                    <span class="block-reward">{{ "%.6f"|format(block.reward) }} BHC</span>
+                </div>
+                <div class="block-info">
+                    Hash: {{ block.hash[:16] }}...
+                    <br>
+                    Miner: {{ block.miner[:8] }}...
+                    <br>
+                    Transactions: {{ block.transactions|length }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="nav-links">
+            <div class="nav-grid">
+                <a href="/user" class="nav-link">Mining</a>
+                <a href="/tasks" class="nav-link">Tasks</a>
+                <a href="/" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

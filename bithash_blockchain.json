@@ -1,0 +1,13 @@
+[
+  {
+    "index": 0,
+    "timestamp": "1749896293.8142183",
+    "miner": "genesis",
+    "previous_hash": "0",
+    "hash": "bb961afe63a2399660df98164507a7eb0d76a4185f4a56449d58b7cc2d9aed8b",
+    "transactions": [],
+    "nonce": 0,
+    "difficulty": 5,
+    "reward": 0.0
+  }
+]
